@@ -1,22 +1,12 @@
 package com.server.main;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import sun.misc.IOUtils;
-
-
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 public class InitServer {
@@ -32,6 +22,9 @@ public class InitServer {
 		server.start();
 	}
 
+	
+	public String folderstr ="";
+	public ArrayList<String> filepatharr;
 	
 	public class MyHandler implements com.sun.net.httpserver.HttpHandler{
 
@@ -53,6 +46,8 @@ public class InitServer {
 					
 			responsebot ="</body>" +
 					"</html>";
+			folderstr ="";
+			filepatharr = new ArrayList<String>();
 			listFilesForFolder(new File("D:/Neuer Ordner"));
 
 			StringBuilder build = new StringBuilder();
@@ -70,9 +65,9 @@ public class InitServer {
 		}
 	}
 	
-	public String folderstr ="";
-	public ArrayList<String> filepatharr = new ArrayList<String>();
+	
 	public void listFilesForFolder(final File folder) {
+		
 	    for (final File fileEntry : folder.listFiles()) {
 	        if (fileEntry.isDirectory()) {
 	        	folderstr = fileEntry.getName();
