@@ -25,6 +25,7 @@ public class InitServer {
 	
 	public String folderstr ="";
 	public ArrayList<String> filepatharr;
+	public String root = "D:/Neuer Ordner";
 	
 	public class MyHandler implements com.sun.net.httpserver.HttpHandler{
 
@@ -48,12 +49,12 @@ public class InitServer {
 					"</html>";
 			folderstr ="";
 			filepatharr = new ArrayList<String>();
-			listFilesForFolder(new File("D:/Neuer Ordner"));
+			listFilesForFolder(new File(root));
 
 			StringBuilder build = new StringBuilder();
 			for(Iterator<String> i = filepatharr.iterator(); i.hasNext();){
 				String filestr = i.next();
-				build.append("<a href='"+filestr+"'> "+filestr+"</a><br>");
+				build.append("<a href='"+filestr.replace(root, "")+"'> "+filestr.replace(root, "")+"</a><br>");
 			}
 			response = responsetop+build.toString()+responsebot;
 			}
@@ -73,8 +74,7 @@ public class InitServer {
 	        	folderstr = fileEntry.getName();
 	            listFilesForFolder(fileEntry);
 	        } else {
-//	            System.out.println(folderstr + "\\" + fileEntry.getName());
-	            filepatharr.add(folderstr + "\\" + fileEntry.getName());
+	            filepatharr.add(fileEntry.getAbsolutePath().replace("\\", "/"));
 	        }
 	    }
 	}
