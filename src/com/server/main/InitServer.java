@@ -1,12 +1,18 @@
 package com.server.main;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.InetSocketAddress;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
 
 public class InitServer {
@@ -36,8 +42,48 @@ public class InitServer {
 			String responsetop;
 			String responsebot;
 		
+			
+            OutputStream os = exchange.getResponseBody();
+            
+			
 			if(!exchange.getRequestURI().getPath().equals("/")){
-				response="File";
+//				byte[] barr = null;
+//				Path path;
+//					barr = Files.readAllBytes(path = Paths.get(root + exchange.getRequestURI()));
+//					os.write(barr);
+				
+				File file = new File(root + exchange.getRequestURI());
+				exchange.sendResponseHeaders(200, file.length());
+				Headers h = exchange.getResponseHeaders();
+				h.set("Accept-Ranges", "bytes");
+				
+			    FileInputStream fs = new FileInputStream(file);
+
+			    final byte[] buffer = new byte[1024];
+			    int count = 0;
+			    while ((count = fs.read(buffer)) >= 0) {
+			        os.write(buffer, 0, count);
+			    }
+			    os.flush();
+			    fs.close();
+			    os.close();
+				
+//				
+//				PrintWriter out = new PrintWriter(os, true); 
+//				File file = new File(root + exchange.getRequestURI());
+//				if( !file.exists()){
+//				  out.write("HTTP 404"); // the file does not exists  
+//				}
+//				FileReader fr = new FileReader(file);
+//				BufferedReader bfr = new BufferedReader(fr);
+//				String line;
+//				while((line = bfr.readLine()) != null){
+//					System.out.println(line);
+//				  out.write(line);
+//				}
+//
+//				bfr.close();
+//				out.close();  
 			}else{
 			responsetop = "<html>" +
 					"<head>" +
@@ -56,13 +102,13 @@ public class InitServer {
 				String filestr = i.next();
 				build.append("<a href='"+filestr.replace(root, "")+"'> "+filestr.replace(root, "")+"</a><br>");
 			}
+			
 			response = responsetop+build.toString()+responsebot;
-			}
-			System.out.println(response);
 			exchange.sendResponseHeaders(200, response.length());
-            OutputStream os = exchange.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
+			os.write(response.getBytes());
+			os.close();
+			}
+
 		}
 	}
 	
