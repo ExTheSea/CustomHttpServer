@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.URLConnection;
+import java.net.URLDecoder;
 
 public class RequestThread extends Thread {
 
@@ -26,10 +27,10 @@ public class RequestThread extends Thread {
 			InputStream str = clientsocket.getInputStream(); //Http Request Header und Body aus socket als InputStream
 			BufferedReader br = new BufferedReader(new InputStreamReader(str)); //BufferedReader um InputStream zu lesen
 			String reqstr = br.readLine(); //Lesen der ersten Zeile, in der der GET pfad liegt, wie z.B. "GET /somefile.txt HTTP/1.1"
-			String getstr = reqstr.substring(reqstr.indexOf("GET")+3, reqstr.lastIndexOf("HTTP")).trim(); //Heraus lesen des Request-Pfads
-
-			handlereq(getstr, clientsocket.getOutputStream());
-
+			if(reqstr != null){
+				String getstr = reqstr.substring(reqstr.indexOf("GET")+3, reqstr.lastIndexOf("HTTP")).trim(); //Heraus lesen des Request-Pfads
+				handlereq(getstr, clientsocket.getOutputStream());
+			}
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -44,16 +45,17 @@ public class RequestThread extends Thread {
 	 * @throws IOException
 	 */
 	public void handlereq(String requeststr, OutputStream os) throws IOException{
-		File f = new File(StartServer.filelocation+requeststr); //Instanz von File, die auf den tatsächlichen Ordner/Datei auf dem System innerhalb des files Ordner zeigt
+//		System.out.println(URLDecoder.decode(StartServer.filelocation+requeststr,"utf-8"));
+		File f = new File(URLDecoder.decode(StartServer.filelocation+requeststr,"utf-8")); //Instanz von File, die auf den tatsächlichen Ordner/Datei auf dem System innerhalb des files Ordner zeigt
 		if(f.exists()){
 			if(f.isDirectory()){ //Wenn es sich um ein Verzeichnis handelt
 				File[] farr = f.listFiles(); //Auflisten aller Dateien und Ordner innerhalb des Verzeichnis
 				StringBuilder htmlstringbuilder = new StringBuilder(); //Zum Aufbau des Htmls zur Anzeige der Dateien und Ordner
 				htmlstringbuilder.append("<html><body>"); 
-				
 				for (int i = 0; i < farr.length; i++) { //Einen Link pro Datei/Ordner zu dem String hinzufügen
 					File file = farr[i];
-					htmlstringbuilder.append("<a href="+file.getAbsolutePath().replace(StartServer.filelocation+"\\", "").replace("\\", "/")+">"+file.getName()+"</a><br>");
+					String str = file.getAbsolutePath().replace(StartServer.filelocation+"\\", "").replace("\\", "/");
+					htmlstringbuilder.append("<a href='"+str+"'>"+file.getName()+"</a><br>");
 				}
 				
 				htmlstringbuilder.append("</body></html>");
